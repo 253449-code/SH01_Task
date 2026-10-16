@@ -2,7 +2,7 @@ package com.upchiapas.kt_template.focustask.presentation
 
 import androidx.lifecycle.ViewModel
 import com.upchiapas.kt_template.focustask.data.local.seedTasks
-import com.upchiapas.kt_template.focustask.data.model.Task
+import com.upchiapas.kt_template.focustask.data.model.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +17,7 @@ class TaskViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(tasks = seedTasks)
         }
-        recalculateProgress() // Calculamos el progreso inicial
+        recalculateProgress()
     }
 
     fun toggleTaskCompletion(taskId: String) {
@@ -27,10 +27,9 @@ class TaskViewModel : ViewModel() {
             }
             currentState.copy(tasks = updatedTasks)
         }
-        recalculateProgress() // Recalculamos al tocar una tarea
+        recalculateProgress()
     }
 
-    // Funcionalidad basica: Calcular puntaje basado en la prioridad
     private fun recalculateProgress() {
         val tasks = _uiState.value.tasks
         val totalPossible = tasks.sumOf { it.priority.multiplier }
@@ -40,6 +39,24 @@ class TaskViewModel : ViewModel() {
 
         _uiState.update {
             it.copy(totalScore = currentScore, progressPercentage = progress)
+        }
+    }
+
+    // Funciones del formulario
+    fun updateDraftTitle(title: String) { _uiState.update { it.copy(draftTitle = title) } }
+
+    fun updateDraftHours(hours: Float) { _uiState.update { it.copy(draftHours = hours) } }
+
+    fun updateDraftPriority(priority: Priority) { _uiState.update { it.copy(draftPriority = priority) } }
+
+    fun saveTask() {
+        // Simula guardar limpiando el formulario por ahora
+        _uiState.update {
+            it.copy(
+                draftTitle = "",
+                draftHours = 1.0f,
+                draftPriority = Priority.MEDIA
+            )
         }
     }
 }

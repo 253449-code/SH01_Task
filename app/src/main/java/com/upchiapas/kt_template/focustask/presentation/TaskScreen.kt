@@ -12,14 +12,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.upchiapas.kt_template.focustask.presentation.components.ProgressSection
 import com.upchiapas.kt_template.focustask.presentation.components.TaskCard
+import com.upchiapas.kt_template.focustask.presentation.components.TaskInputForm
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = viewModel() // Inyectamos el ViewModel
+    viewModel: TaskViewModel = viewModel()
 ) {
-    // 1. Recolectamos el estado de forma segura (UDF)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -33,7 +33,6 @@ fun TaskScreen(
             )
         }
     ) { paddingValues ->
-        // 2. Lista perezosa (LazyColumn) para mostrar los datos
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -41,17 +40,26 @@ fun TaskScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // --- NUEVO: Agregamos la barra de progreso hasta arriba ---
+
             item {
+                TaskInputForm(
+                    draftTitle = uiState.draftTitle,
+                    onTitleChange = { viewModel.updateDraftTitle(it) },
+                    draftHours = uiState.draftHours,
+                    onHoursChange = { viewModel.updateDraftHours(it) },
+                    draftPriority = uiState.draftPriority,
+                    onPrioritySelect = { viewModel.updateDraftPriority(it) },
+                    onSaveTask = { viewModel.saveTask() }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
                 ProgressSection(
                     progressPercentage = uiState.progressPercentage,
                     totalScore = uiState.totalScore
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            // ----------------------------------------------------------
 
-            // Iteramos sobre la lista de tareas del estado inmutable
             items(uiState.tasks) { task ->
                 TaskCard(
                     task = task,
