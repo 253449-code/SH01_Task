@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.upchiapas.kt_template.focustask.presentation.components.ProgressSection
 import com.upchiapas.kt_template.focustask.presentation.components.TaskCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,12 +41,21 @@ fun TaskScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
+            // --- NUEVO: Agregamos la barra de progreso hasta arriba ---
+            item {
+                ProgressSection(
+                    progressPercentage = uiState.progressPercentage,
+                    totalScore = uiState.totalScore
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            // ----------------------------------------------------------
+
             // Iteramos sobre la lista de tareas del estado inmutable
             items(uiState.tasks) { task ->
                 TaskCard(
                     task = task,
                     onToggleCompletion = { taskId ->
-                        // 3. Enviamos el evento al ViewModel
                         viewModel.toggleTaskCompletion(taskId)
                     }
                 )
