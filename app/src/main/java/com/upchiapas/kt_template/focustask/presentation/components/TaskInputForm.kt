@@ -17,6 +17,13 @@ fun TaskInputForm(
     priority: String, onPriorityChange: (String) -> Unit,
     onAddClick: () -> Unit
 ) {
+    // Configuración para forzar el texto negro en las entradas
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Color.Black,
+        unfocusedTextColor = Color.Black,
+        cursorColor = Color.Black
+    )
+
     Column(modifier = Modifier.padding(16.dp)) {
         Text("[01] CREAR NUEVA TAREA", fontWeight = FontWeight.Bold)
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -24,7 +31,8 @@ fun TaskInputForm(
         Text("TITULO DE LA TAREA:")
         OutlinedTextField(
             value = title, onValueChange = onTitleChange,
-            modifier = Modifier.fillMaxWidth(), singleLine = true
+            modifier = Modifier.fillMaxWidth(), singleLine = true,
+            colors = textFieldColors // Aplicamos color negro
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -32,7 +40,8 @@ fun TaskInputForm(
         Text("DESCRIPCION:")
         OutlinedTextField(
             value = description, onValueChange = onDescriptionChange,
-            modifier = Modifier.fillMaxWidth(), minLines = 2
+            modifier = Modifier.fillMaxWidth(), minLines = 2,
+            colors = textFieldColors // Aplicamos color negro
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -46,12 +55,18 @@ fun TaskInputForm(
             }
         }
 
+        // ... (resto del código superior se mantiene igual)
         Spacer(modifier = Modifier.height(16.dp))
         Text("TIEMPO ESTIMADO: ${String.format("%.1f", time)} hrs")
+
+        // --- SLIDER ACTUALIZADO: Hasta 10 horas con incrementos de 0.5 ---
         Slider(
-            value = time.toFloat(), onValueChange = { onTimeChange(it.toDouble()) },
-            valueRange = 0.5f..4.0f, steps = 6
+            value = time.toFloat(),
+            onValueChange = { onTimeChange(it.toDouble()) },
+            valueRange = 0.5f..10.0f, // Rango ampliado
+            steps = 18 // Número de paradas intermedias
         )
+        // ... (resto del código inferior se mantiene igual)
 
         Spacer(modifier = Modifier.height(8.dp))
         Text("PRIORIDAD:")

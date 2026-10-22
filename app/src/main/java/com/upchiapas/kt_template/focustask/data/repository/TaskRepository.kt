@@ -10,5 +10,6 @@ interface TaskRepository {
     suspend fun saveTask(task: Task)
     suspend fun updateTask(task: Task)
     suspend fun saveFilterState(showCompleted: Boolean)
-    suspend fun resetToSeedData()
+    suspend fun deleteTask(taskId: String) // <- NUEVO
+    suspend fun clearAllTasks() // <- REEMPLAZA resetToSeedData
 }

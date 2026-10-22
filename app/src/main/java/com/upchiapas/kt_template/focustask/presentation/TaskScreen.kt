@@ -26,7 +26,7 @@ fun TaskScreen(viewModel: TaskViewModel) {
 
     val filteredTasks = if (uiState.showCompleted) uiState.tasks else uiState.tasks.filter { !it.isCompleted }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
         item {
             TaskInputForm(
                 title = uiState.currentTitle, onTitleChange = viewModel::updateTitle,
@@ -70,15 +70,22 @@ fun TaskScreen(viewModel: TaskViewModel) {
         }
 
         items(filteredTasks) { task ->
-            TaskCard(task = task, onToggle = { viewModel.toggleTaskCompletion(task) })
+            // --- CONECTAMOS EL EVENTO DE BORRAR ---
+            TaskCard(
+                task = task,
+                onToggle = { viewModel.toggleTaskCompletion(task) },
+                onDelete = { viewModel.deleteTask(task) }
+            )
         }
 
         item {
+            // --- BOTÓN ACTUALIZADO A "LIMPIAR TODO" ---
             OutlinedButton(
-                onClick = viewModel::resetData,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+                onClick = viewModel::clearAllData,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
             ) {
-                Text("REINICIAR TAREAS BASE")
+                Text("LIMPIAR TODAS LAS TAREAS")
             }
         }
     }

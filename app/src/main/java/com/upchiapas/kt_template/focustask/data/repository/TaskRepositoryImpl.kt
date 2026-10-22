@@ -48,16 +48,25 @@ class TaskRepositoryImpl(
         }
     }
 
-    override suspend fun saveFilterState(showCompleted: Boolean) {
-        dataStore.edit { prefs -> prefs[FILTER_KEY] = showCompleted }
+    // --- NUEVAS FUNCIONES PARA ELIMINAR ---
+
+    override suspend fun deleteTask(taskId: String) {
+        dataStore.edit { prefs ->
+            val currentJson = prefs[TASKS_KEY] ?: "[]"
+            val currentList = parseJsonToTasks(currentJson).toMutableList()
+            currentList.removeAll { it.id == taskId }
+            prefs[TASKS_KEY] = parseTasksToJson(currentList)
+        }
     }
 
-    override suspend fun resetToSeedData() {
-        val seedTasks = listOf(
-            Task(title = "Revisar arquitectura", description = "Leer documentación de MVVM", category = "Estudio", estimatedTime = 2.0, priority = "Alta"),
-            Task(title = "Diseñar UI", description = "Crear pantallas en Compose", category = "Trabajo", estimatedTime = 1.5, priority = "Alta")
-        )
-        dataStore.edit { prefs -> prefs[TASKS_KEY] = parseTasksToJson(seedTasks) }
+    override suspend fun clearAllTasks() {
+        dataStore.edit { prefs ->
+            prefs[TASKS_KEY] = "[]" // Vacía la lista por completo
+        }
+    }
+
+    override suspend fun saveFilterState(showCompleted: Boolean) {
+        dataStore.edit { prefs -> prefs[FILTER_KEY] = showCompleted }
     }
 
     private fun parseTasksToJson(tasks: List<Task>): String {

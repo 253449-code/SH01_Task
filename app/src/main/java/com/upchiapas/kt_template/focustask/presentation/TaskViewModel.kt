@@ -54,11 +54,17 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         viewModelScope.launch { repository.updateTask(updatedTask) }
     }
 
-    fun toggleFilterState(show: Boolean) {
-        viewModelScope.launch { repository.saveFilterState(show) }
+    // --- NUEVAS ACCIONES ---
+
+    fun deleteTask(task: Task) {
+        viewModelScope.launch { repository.deleteTask(task.id) }
     }
 
-    fun resetData() {
-        viewModelScope.launch { repository.resetToSeedData() }
+    fun clearAllData() {
+        viewModelScope.launch { repository.clearAllTasks() }
+    }
+
+    fun toggleFilterState(show: Boolean) {
+        viewModelScope.launch { repository.saveFilterState(show) }
     }
 }
