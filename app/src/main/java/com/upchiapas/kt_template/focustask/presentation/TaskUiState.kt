@@ -1,24 +1,17 @@
 package com.upchiapas.kt_template.focustask.presentation
 
-import com.upchiapas.kt_template.focustask.data.model.Category
-import com.upchiapas.kt_template.focustask.data.model.Priority
 import com.upchiapas.kt_template.focustask.data.model.Task
 
-// Estado Inmutable de la Interfaz (UDF)
 data class TaskUiState(
-    // Datos de entrada del formulario
-    val draftTitle: String = "",
-    val draftCategory: Category = Category.ESTUDIO,
-    val draftHours: Float = 1.0f,
-    val draftPriority: Priority = Priority.MEDIA,
-
-    // Lista de tareas a mostrar
+    val currentTitle: String = "",
+    val currentDescription: String = "",
+    val currentCategory: String = "Estudio",
+    val currentTime: Double = 2.0,
+    val currentPriority: String = "Media",
     val tasks: List<Task> = emptyList(),
-
-    // Filtro
-    val showCompleted: Boolean = true,
-
-    // Métricas calculadas
-    val totalScore: Int = 0,
-    val progressPercentage: Float = 0f
-)
+    val showCompleted: Boolean = true
+) {
+    val currentTaskPoints: Int get() = Task(
+        title = "", category = currentCategory, estimatedTime = currentTime, priority = currentPriority
+    ).points
+}

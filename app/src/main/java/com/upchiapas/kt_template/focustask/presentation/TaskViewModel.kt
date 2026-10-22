@@ -1,62 +1,64 @@
 package com.upchiapas.kt_template.focustask.presentation
 
 import androidx.lifecycle.ViewModel
-import com.upchiapas.kt_template.focustask.data.local.seedTasks
-import com.upchiapas.kt_template.focustask.data.model.Priority
+import androidx.lifecycle.viewModelScope
+import com.upchiapas.kt_template.focustask.data.model.Task
+import com.upchiapas.kt_template.focustask.data.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class TaskViewModel : ViewModel() {
-
+class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(TaskUiState())
     val uiState: StateFlow<TaskUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { currentState ->
-            currentState.copy(tasks = seedTasks)
-        }
-        recalculateProgress()
-    }
-
-    fun toggleTaskCompletion(taskId: String) {
-        _uiState.update { currentState ->
-            val updatedTasks = currentState.tasks.map { task ->
-                if (task.id == taskId) task.copy(isCompleted = !task.isCompleted) else task
+        viewModelScope.launch {
+            repository.tasksFlow.collectLatest { tasksList ->
+                _uiState.update { it.copy(tasks = tasksList) }
             }
-            currentState.copy(tasks = updatedTasks)
         }
-        recalculateProgress()
-    }
-
-    private fun recalculateProgress() {
-        val tasks = _uiState.value.tasks
-        val totalPossible = tasks.sumOf { it.priority.multiplier }
-        val currentScore = tasks.filter { it.isCompleted }.sumOf { it.priority.multiplier }
-
-        val progress = if (totalPossible > 0) currentScore.toFloat() / totalPossible else 0f
-
-        _uiState.update {
-            it.copy(totalScore = currentScore, progressPercentage = progress)
+        viewModelScope.launch {
+            repository.filterStateFlow.collectLatest { filter ->
+                _uiState.update { it.copy(showCompleted = filter) }
+            }
         }
     }
 
-    // Funciones del formulario
-    fun updateDraftTitle(title: String) { _uiState.update { it.copy(draftTitle = title) } }
+    fun updateTitle(newTitle: String) { _uiState.update { it.copy(currentTitle = newTitle) } }
+    fun updateDescription(newDesc: String) { _uiState.update { it.copy(currentDescription = newDesc) } }
+    fun updateCategory(newCat: String) { _uiState.update { it.copy(currentCategory = newCat) } }
+    fun updateTime(newTime: Double) { _uiState.update { it.copy(currentTime = newTime) } }
+    fun updatePriority(newPriority: String) { _uiState.update { it.copy(currentPriority = newPriority) } }
 
-    fun updateDraftHours(hours: Float) { _uiState.update { it.copy(draftHours = hours) } }
-
-    fun updateDraftPriority(priority: Priority) { _uiState.update { it.copy(draftPriority = priority) } }
-
-    fun saveTask() {
-        // Simula guardar limpiando el formulario por ahora
-        _uiState.update {
-            it.copy(
-                draftTitle = "",
-                draftHours = 1.0f,
-                draftPriority = Priority.MEDIA
+    fun addTask() {
+        val state = _uiState.value
+        if (state.currentTitle.isNotBlank()) {
+            val newTask = Task(
+                title = state.currentTitle,
+                description = state.currentDescription,
+                category = state.currentCategory,
+                estimatedTime = state.currentTime,
+                priority = state.currentPriority
             )
+            viewModelScope.launch { repository.saveTask(newTask) }
+            _uiState.update { it.copy(currentTitle = "", currentDescription = "", currentTime = 2.0) }
         }
+    }
+
+    fun toggleTaskCompletion(task: Task) {
+        val updatedTask = task.copy(isCompleted = !task.isCompleted)
+        viewModelScope.launch { repository.updateTask(updatedTask) }
+    }
+
+    fun toggleFilterState(show: Boolean) {
+        viewModelScope.launch { repository.saveFilterState(show) }
+    }
+
+    fun resetData() {
+        viewModelScope.launch { repository.resetToSeedData() }
     }
 }

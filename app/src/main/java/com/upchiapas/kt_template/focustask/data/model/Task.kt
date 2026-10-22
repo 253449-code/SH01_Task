@@ -1,19 +1,28 @@
 package com.upchiapas.kt_template.focustask.data.model
 
-enum class Priority(val multiplier: Int) {
-    ALTA(3), MEDIA(2), BAJA(1)
-}
+import java.util.UUID
 
-enum class Category {
-    ESTUDIO, TRABAJO, PERSONAL
-}
-
-// Modelo de datos de la tarea (Requisito de datos semilla/persistencia)
 data class Task(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String = UUID.randomUUID().toString(),
     val title: String,
-    val category: Category,
-    val estimatedHours: Float,
-    val priority: Priority,
+    val description: String = "",
+    val category: String,
+    val estimatedTime: Double,
+    val priority: String,
     val isCompleted: Boolean = false
-)
+) {
+    val points: Int get() {
+        val basePoints = (estimatedTime * 10).toInt()
+        val priorityMultiplier = when (priority.uppercase()) {
+            "ALTA" -> 3
+            "MEDIA" -> 2
+            else -> 1
+        }
+        val categoryBonus = when (category.uppercase()) {
+            "TRABAJO" -> 20
+            "ESTUDIO" -> 10
+            else -> 5
+        }
+        return (basePoints * priorityMultiplier) + categoryBonus
+    }
+}

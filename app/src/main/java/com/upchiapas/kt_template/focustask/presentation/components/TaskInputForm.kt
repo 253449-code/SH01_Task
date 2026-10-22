@@ -3,73 +3,74 @@ package com.upchiapas.kt_template.focustask.presentation.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.upchiapas.kt_template.focustask.data.model.Priority
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskInputForm(
-    draftTitle: String,
-    onTitleChange: (String) -> Unit,
-    draftHours: Float,
-    onHoursChange: (Float) -> Unit,
-    draftPriority: Priority,
-    onPrioritySelect: (Priority) -> Unit,
-    onSaveTask: () -> Unit,
-    modifier: Modifier = Modifier
+    title: String, onTitleChange: (String) -> Unit,
+    description: String, onDescriptionChange: (String) -> Unit,
+    category: String, onCategoryChange: (String) -> Unit,
+    time: Double, onTimeChange: (Double) -> Unit,
+    priority: String, onPriorityChange: (String) -> Unit,
+    onAddClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text("Crear Nueva Tarea", style = MaterialTheme.typography.titleMedium)
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text("[01] CREAR NUEVA TAREA", fontWeight = FontWeight.Bold)
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            OutlinedTextField(
-                value = draftTitle,
-                onValueChange = onTitleChange,
-                label = { Text("¿Que necesitas hacer?") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+        Text("TITULO DE LA TAREA:")
+        OutlinedTextField(
+            value = title, onValueChange = onTitleChange,
+            modifier = Modifier.fillMaxWidth(), singleLine = true
+        )
 
-            Text(text = "Tiempo estimado: ${String.format("%.1f", draftHours)} horas", style = MaterialTheme.typography.bodyMedium)
-            Slider(
-                value = draftHours,
-                onValueChange = onHoursChange,
-                valueRange = 0.5f..4.0f,
-                steps = 6
-            )
+        Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Prioridad:", style = MaterialTheme.typography.bodyMedium)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Priority.values().forEach { priority ->
-                    FilterChip(
-                        selected = draftPriority == priority,
-                        onClick = { onPrioritySelect(priority) },
-                        label = { Text(priority.name) }
-                    )
+        Text("DESCRIPCION:")
+        OutlinedTextField(
+            value = description, onValueChange = onDescriptionChange,
+            modifier = Modifier.fillMaxWidth(), minLines = 2
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("CATEGORIA:")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("Estudio", "Trabajo", "Personal").forEach { cat ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    RadioButton(selected = category == cat, onClick = { onCategoryChange(cat) })
+                    Text(cat)
                 }
             }
+        }
 
-            Button(
-                onClick = onSaveTask,
-                modifier = Modifier.align(Alignment.End),
-                enabled = draftTitle.isNotBlank()
-            ) {
-                Text("Agregar")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("TIEMPO ESTIMADO: ${String.format("%.1f", time)} hrs")
+        Slider(
+            value = time.toFloat(), onValueChange = { onTimeChange(it.toDouble()) },
+            valueRange = 0.5f..4.0f, steps = 6
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("PRIORIDAD:")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("Alta", "Media", "Baja").forEach { prio ->
+                FilterChip(
+                    selected = priority == prio,
+                    onClick = { onPriorityChange(prio) },
+                    label = { Text(prio) }
+                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onAddClick, modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+        ) {
+            Text("+ GUARDAR TAREA", color = Color.White)
         }
     }
 }
